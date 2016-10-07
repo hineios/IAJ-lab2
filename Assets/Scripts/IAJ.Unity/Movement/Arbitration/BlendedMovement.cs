@@ -46,16 +46,17 @@ namespace Assets.Scripts.IAJ.Unity.Movement.Arbitration
 
             var totalWeight = 0.0f;
 
-            foreach (MovementWithWeight movementWithWeight in this.Movements)
+            foreach (MovementWithWeight movement in this.Movements)
             {
-                movementWithWeight.Movement.Character = this.Character;
+                //movementWithWeight.Movement.Character = this.Character;
 
-                tempOutput = movementWithWeight.Movement.GetMovement();
-                if (tempOutput.SquareMagnitude() > 0)
+                tempOutput = movement.Movement.GetMovement();
+                if (tempOutput.Magnitude() > 0)
                 {
-                    finalOutput.linear += tempOutput.linear * movementWithWeight.Weight;
-                    finalOutput.angular += tempOutput.angular * movementWithWeight.Weight;
-                    totalWeight += movementWithWeight.Weight;
+                    totalWeight += movement.Weight;
+                    finalOutput.linear += tempOutput.linear * movement.Weight;
+                    finalOutput.angular += tempOutput.angular * movement.Weight;
+                    
                 }
             }
 

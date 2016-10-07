@@ -10,13 +10,16 @@ public class PriorityManager : MonoBehaviour
 {
     public const float X_WORLD_SIZE = 55;
     public const float Z_WORLD_SIZE = 32.5f;
-    public const float AVOID_MARGIN = 2.0f;
+    public const float AVOID_MARGIN = 3.0f;
     public const float MAX_SPEED = 20.0f;
     public const float MAX_ACCELERATION = 40.0f;
     public const float DRAG = 0.1f;
-	public const float MAX_LOOK_AHEAD = 5.0f;
+	public const float MAX_LOOK_AHEAD = 7.0f;
+    public const float MAX_WHISKERS_LOOK_AHEAD = 4.0f;
+    public const float MAX_WHISKERS_SPAN = 45.0f;
+    public const int MAX_CHARACTERS = 50;
 
-	private DynamicCharacter RedCharacter { get; set; }
+    private DynamicCharacter RedCharacter { get; set; }
 
     private Text RedMovementText { get; set; }
 
@@ -50,7 +53,7 @@ public class PriorityManager : MonoBehaviour
         
 	    var obstacles = GameObject.FindGameObjectsWithTag("Obstacle");
 
-	    this.Characters = this.CloneSecondaryCharacters(redObj, 0, obstacles);
+	    this.Characters = this.CloneSecondaryCharacters(redObj, MAX_CHARACTERS, obstacles);
 	    this.Characters.Add(this.RedCharacter);
 
         this.InitializeMainCharacter(obstacles);
@@ -76,16 +79,17 @@ public class PriorityManager : MonoBehaviour
         
 	    foreach (var obstacle in obstacles)
 	    {
-			var avoidObstacleMovement = new DynamicAvoidObstacle()
+			var avoidObstacleMovement = new DynamicAvoidObstacle(obstacle)
 			{
 				MaxAcceleration = MAX_ACCELERATION,
-				collisionDetector = obstacle.GetComponent<Collider> (),
-				avoidDistance = AVOID_MARGIN,
-				lookAhead = MAX_LOOK_AHEAD,
+				AvoidMargin = AVOID_MARGIN,
+				MaxLookAhead = MAX_LOOK_AHEAD,
 				Character = this.RedCharacter.KinematicData,
-				MovementDebugColor = Color.red
+				MovementDebugColor = Color.red,
+                WhiskersLength = MAX_WHISKERS_LOOK_AHEAD,
+                whiskersSpan = MAX_WHISKERS_SPAN
 			};
-			this.Blended.Movements.Add(new MovementWithWeight(avoidObstacleMovement,5.0f));
+			this.Blended.Movements.Add(new MovementWithWeight(avoidObstacleMovement, 10.0f));
 			this.Priority.Movements.Add(avoidObstacleMovement);
 	    }
 
@@ -93,22 +97,19 @@ public class PriorityManager : MonoBehaviour
         {
             if (otherCharacter != this.RedCharacter)
             {
-                //TODO: add your AvoidCharacter movement here
-                //var avoidCharacter = new DynamicAvoidCharacter(otherCharacter.KinematicData)
-                //{
-                //    Character = this.RedCharacter.KinematicData,
-                //    MaxAcceleration = MAX_ACCELERATION,
-                //    AvoidMargin = AVOID_MARGIN,
-                //    MovementDebugColor = Color.cyan 
-                //};
 
-                //this.Priority.Movements.Add(avoidCharacter);
+                var avoidCharacter = new DynamicAvoidCharacter(otherCharacter.KinematicData)
+                {
+                    Character = this.RedCharacter.KinematicData,
+                    MaxAcceleration = MAX_ACCELERATION,
+                    AvoidMargin = AVOID_MARGIN,
+                    MovementDebugColor = Color.cyan
+                };
+
+                this.Priority.Movements.Add(avoidCharacter);
             }
         }
 
-        /*
-         * TODO: add your wander behaviour here!
-         */
         var wander = new DynamicWander
         {
             MaxAcceleration = MAX_ACCELERATION,
@@ -117,7 +118,7 @@ public class PriorityManager : MonoBehaviour
         };
 
         this.Priority.Movements.Add(wander);
-        this.Blended.Movements.Add(new MovementWithWeight(wander,obstacles.Length+this.Characters.Count));
+        this.Blended.Movements.Add(new MovementWithWeight(wander, obstacles.Length+this.Characters.Count));
 
         this.RedCharacter.Movement = this.Blended;
 
@@ -132,34 +133,33 @@ public class PriorityManager : MonoBehaviour
 
 	    foreach (var obstacle in obstacles)
 	    {
+            var avoidObstacleMovement = new DynamicAvoidObstacle(obstacle)
+            {
+                MaxAcceleration = MAX_ACCELERATION,
+                AvoidMargin = AVOID_MARGIN,
+                MaxLookAhead = MAX_LOOK_AHEAD,
+                Character = this.RedCharacter.KinematicData,
+                MovementDebugColor = Color.magenta,
+                WhiskersLength = MAX_WHISKERS_LOOK_AHEAD,
+                whiskersSpan = MAX_WHISKERS_SPAN
+            };
 
-            //TODO: add your AvoidObstacle movement here
-            //avoidObstacleMovement = new DynamicAvoidObstacle(obstacle)
-            //{
-            //    MaxAcceleration = MAX_ACCELERATION,
-            //    AvoidMargin = AVOID_MARGIN,
-            //    MaxLookAhead = MAX_LOOK_AHEAD,
-            //    Character = character.KinematicData,
-            //    MovementDebugColor = Color.magenta
-            //};
-            
-            //priority.Movements.Add(avoidObstacleMovement);
-	    }
+            priority.Movements.Add(avoidObstacleMovement);
+        }
 
         foreach (var otherCharacter in this.Characters)
         {
             if (otherCharacter != character)
             {
-                //TODO: add your avoidCharacter movement here
-                //var avoidCharacter = new DynamicAvoidCharacter(otherCharacter.KinematicData)
-                //{
-                //    Character = character.KinematicData,
-                //    MaxAcceleration = MAX_ACCELERATION,
-                //    AvoidMargin = AVOID_MARGIN,
-                //    MovementDebugColor = Color.cyan
-                //};
+                var avoidCharacter = new DynamicAvoidCharacter(otherCharacter.KinematicData)
+                {
+                    Character = character.KinematicData,
+                    MaxAcceleration = MAX_ACCELERATION,
+                    AvoidMargin = AVOID_MARGIN,
+                    MovementDebugColor = Color.cyan
+                };
 
-                //priority.Movements.Add(avoidCharacter);
+                priority.Movements.Add(avoidCharacter);
             }
         }
 
