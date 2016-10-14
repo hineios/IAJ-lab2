@@ -87,7 +87,7 @@ public class PriorityManager : MonoBehaviour
 				Character = this.RedCharacter.KinematicData,
 				MovementDebugColor = Color.red,
                 WhiskersLength = MAX_WHISKERS_LOOK_AHEAD,
-                whiskersSpan = MAX_WHISKERS_SPAN
+                WhiskerSpan = MAX_WHISKERS_SPAN
 			};
 			this.Blended.Movements.Add(new MovementWithWeight(avoidObstacleMovement, 10.0f));
 			this.Priority.Movements.Add(avoidObstacleMovement);
@@ -141,7 +141,7 @@ public class PriorityManager : MonoBehaviour
                 Character = this.RedCharacter.KinematicData,
                 MovementDebugColor = Color.magenta,
                 WhiskersLength = MAX_WHISKERS_LOOK_AHEAD,
-                whiskersSpan = MAX_WHISKERS_SPAN
+                WhiskerSpan = MAX_WHISKERS_SPAN
             };
 
             priority.Movements.Add(avoidObstacleMovement);
