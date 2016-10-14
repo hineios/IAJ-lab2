@@ -73,7 +73,8 @@ namespace Assets.Scripts.IAJ.Unity.Movement.DynamicMovement
 
             var output = new MovementOutput();
             output.linear = avoidanceDirection.normalized * MaxAcceleration;
-            return output;
+            return output;
+
         }
     }
 }
